@@ -20,5 +20,5 @@ list(mod, BV)
 mmgblup function
 }
 \examples{
-\dontrun{rst = mmgblup(model = "AD", data = cbind(dt, mmdata$Xa), Ka = mmdata$Ka, Kd = mmdata$Ka)}
+\dontrun{rst = mmgblup(data = cbind(dt, mmdata$Xa, mmdata$Xd), Ka = mmdata$Ka, Kd = mmdata$Ka)}
 }

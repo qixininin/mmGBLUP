@@ -1,4 +1,4 @@
-library(dplyr)
+library(mmGBLUP)
 set.seed(421)
 
 # Simulation ----
@@ -35,19 +35,19 @@ save(geno_data, pheno_data, file = paste0(prefix, "-genphe.Rdata"))
 
 ## (AD) additive and dominance effects ----
 mod = "AD"
-prefix = paste0("./inst/pivot-", mod)
-indNum = 100
-snpNum = 200
-rho_a = 0.8
-rho_d = 0.8
-h2_a = 0.6
-h2_d = 0.3
+prefix = paste0("./inst/simulation-", mod)
+indNum = 3000
+snpNum = 2000
+rho_a = 0.5
+rho_d = 0.5
+h2_a = 0.3
+h2_d = 0.2
 sigma_a = h2_a
 sigma_d = h2_d
 sigma_error = 1-h2_a-h2_d
 
-major_a_idx = c(500, 750, 1000, 1250, 1500)/10
-major_d_idx = c(200, 500, 800, 1200, 1800)/10
+major_a_idx = c(500, 750, 1000, 1250, 1500)
+major_d_idx = c(200, 750, 1250, 1800)
 snpNum_a_major = length(major_a_idx)
 snpNum_a_minor = snpNum-snpNum_a_major
 snpNum_d_major = length(major_d_idx)
@@ -65,7 +65,7 @@ effects = snp.effect(model = mod, snpNum = snpNum,
 
 # Genotype generation
 geno_data = geno.generate(indNum = indNum, snpNum = snpNum, maf.min = 0.05, maf.max = 0.5,
-                          chr.snpNum = c(500, 500, 500, 500)/10)
+                          chr.snpNum = c(500, 500, 500, 500))
 
 
 # Phenotype generation
@@ -74,9 +74,8 @@ pheno_data = pheno.generate(model = mod, geno_data = geno_data, effects = effect
 # Save Rdata
 save(geno_data, pheno_data, file = paste0(prefix, "-genphe.Rdata"))
 
-
 # QTS ----
-prefix = "./inst/pivot-AD"
+prefix = "./inst/simulation-AD"
 load(paste0(prefix, "-genphe.Rdata"))
 
 # Prepare QTXNetwork
@@ -101,7 +100,7 @@ save(qtl_data, qtl_dom_data, file = paste0(prefix, "-qtl.Rdata"))
 
 # GS ----
 ## Load data
-prefix = "./inst/pivot-AD"
+prefix = "./inst/simulation-AD"
 load(paste0(prefix, "-genphe.Rdata"))
 load(paste0(prefix, "-qtl.Rdata"))
 
@@ -162,7 +161,7 @@ rstGBLUPAD <- dplyr::bind_rows(gblup_ad_list)
 
 # + mmGBLUP ------------------------------------------------------
 a <- 0
-mmgblup_list <- list()
+mmgblup_ad_list <- list()
 for(i in 1:cvNum) # loop for cross validation fold
 {
   a <- a + 1
@@ -173,24 +172,23 @@ for(i in 1:cvNum) # loop for cross validation fold
   dt = as.data.frame(dt)
 
   # mmGBLUP model
-  rst = mmgblup(data = cbind(dt, mmdata$Xa, mmdata$Xd), Ka = mmdata$Ka, AE = mmdata$AE)
+  rst = mmgblup(data = cbind(dt, mmdata$Xa, mmdata$Xd), Ka = mmdata$Ka, Kd = mmdata$Kd)
   BV = rst[[2]]
 
   # Calculate correlation
   cor <- BV %>% dplyr::mutate(obs = mmpheno_data$trait) %>%
     dplyr::filter(GID %in% cv) %>%
-    dplyr::filter(ENV %in% validEnv) %>%
     dplyr::summarise(cor(obs,pre,use="pairwise.complete.obs")) %>%
     as.numeric()
 
-  mmgblup_list[[a]] = data.frame(TRAIT = mmdata$mmsummary$traitName, CV = i, COR = cor, R2 = cor^2)
+  mmgblup_ad_list[[a]] = data.frame(TRAIT = mmdata$mmsummary$traitName, CV = i, COR = cor, R2 = cor^2)
   print(a)
 }
 
-rstmmGBLUP <- dplyr::bind_rows(mmgblup_list)
+rstmmGBLUPAD <- dplyr::bind_rows(mmgblup_ad_list)
 
+## Save correlation results
+rst = data.frame(rbind(rstGBLUP, rstGBLUPAD, rstmmGBLUPAD),
+                 MODEL = rep(c("GBLUP","GBLUP-AD","mmGBLUP-AD"), each = cvNum))
 
-rst = data.frame(rbind(rstGBLUP, rstGEBLUP, rstmmGBLUP, rstmmGEBLUP),
-                 MODEL = rep(c("GBLUP","GEBLUP","mmGBLUP","mmGEBLUP"), each = cvNum))
-
-save(rst, file = "./inst/Simulation-GSresult-cor.Rdata")
+save(rst, file = paste0(prefix, "-rst.Rdata"))

@@ -18,9 +18,11 @@ calculateKdXd <- function(geno_data, pheno_data, D, site_qtl_dom, m_qtl_dom)
   {
     Kd = D.mat(as.matrix(geno_data[,!colnames(geno_data) %in% site_qtl_dom]))
     Xd = 1-abs(geno_data[as.character(pheno_data$GID), site_qtl_dom]) # transform -1,0,1 to 0,1,0 code
+    Xd = as.matrix(Xd)
+    colnames(Xd) = paste0(site_qtl_dom,"_D")
   } else {
-    Ka = D
-    Xa = c()
+    Kd = D
+    Xd = c()
   }
 
   colnames(Kd) = rownames(Kd) = rownames(geno_data)
