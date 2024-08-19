@@ -73,6 +73,7 @@ pheno_data = pheno.generate(model = mod, geno_data = geno_data, effects = effect
 
 # Save Rdata
 save(geno_data, pheno_data, file = paste0(prefix, "-genphe.Rdata"))
+# save(effects, major_a_idx, major_d_idx, file = paste0(prefix, "-eff.Rdata"))
 
 # QTS ----
 prefix = "./inst/simulation-AD"
@@ -172,7 +173,9 @@ for(i in 1:cvNum) # loop for cross validation fold
   dt = as.data.frame(dt)
 
   # mmGBLUP model
-  rst = mmgblup(data = cbind(dt, mmdata$Xa, mmdata$Xd), Ka = mmdata$Ka, Kd = mmdata$Kd)
+  if(!is.null(mmdata$Xa)) {dt = cbind(dt, mmdata$Xa)}
+  if(!is.null(mmdata$Xd)) {dt = cbind(dt, mmdata$Xd)}
+  rst = mmgblup(data = dt, Ka = mmdata$Ka, Kd = mmdata$Kd)
   BV = rst[[2]]
 
   # Calculate correlation
