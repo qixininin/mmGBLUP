@@ -43,6 +43,10 @@ qtxnetwork.output.trans <- function(pheno_data, pre_file)
       df.qtl = rbind(df.qtl, data.frame(trait, tmp))
     }
   }
+
+  if(nrow(df.qtl)==0) {return(list(qtl_data = data.frame(TRAIT=character(), QTL=character()),
+                                   qtl_dom_data = data.frame(TRAIT=character(), QTL=character())))}
+
   colnames(df.qtl) = c("TRAIT", "QTL", "SNPID", "A", "SE", "P-Value","D", "DSE", "DP-Value")
 
   dt = df.qtl %>% dplyr::select(c("TRAIT","SNPID","A", "D"))
