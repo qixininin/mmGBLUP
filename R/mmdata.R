@@ -19,8 +19,8 @@
 #' @export
 #' @import dplyr
 #'
-#' @examples \dontrun{qcdata = dataqc(geno_data, pheno_data, qtl_data, qtl_env_data)}
-mmdata <- function(geno_data, pheno_data, qtl_data, qtl_env_data)
+#' @examples \dontrun{qcdata = dataqc(geno_data, pheno_data, qtl_data, qtl_dom_data)}
+mmdata <- function(geno_data, pheno_data, qtl_data, qtl_dom_data)
 {
   # Transform genotype
   rownames(geno_data) = geno_data[,2]

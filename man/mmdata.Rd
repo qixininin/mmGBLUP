@@ -5,7 +5,7 @@
 \title{mmdata function
 Format data for mmGEBLUP analysis}
 \usage{
-mmdata(geno_data, pheno_data, qtl_data, qtl_env_data)
+mmdata(geno_data, pheno_data, qtl_data, qtl_dom_data)
 }
 \arguments{
 \item{geno_data}{input genotype data}
@@ -33,5 +33,5 @@ mmdata function
 Format data for mmGEBLUP analysis
 }
 \examples{
-\dontrun{qcdata = dataqc(geno_data, pheno_data, qtl_data, qtl_env_data)}
+\dontrun{qcdata = dataqc(geno_data, pheno_data, qtl_data, qtl_dom_data)}
 }
