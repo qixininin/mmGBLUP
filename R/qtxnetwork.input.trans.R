@@ -37,7 +37,7 @@ qtxnetwork.input.trans <- function(geno_data, pheno_data, geno_output_prefix, ph
   print(paste0("Writing QTXNetwork2.0 \'.gen\' files at ", pheno_output_prefix, ".gen"))
   outputFile = paste0(geno_output_prefix,".gen")
   printer = file(outputFile, "w")
-  write.table(geno_data, file = printer, append = T,
+  write.table(geno_data, file = printer, append = T, na = ".",
               row.names = F, col.names = T, quote = F,sep = "\t", eol = "\n")
   close(printer)
 
